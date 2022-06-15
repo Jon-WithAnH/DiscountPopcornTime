@@ -1,11 +1,11 @@
-# Project Title
-
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
+
+# Discount Popcorn Time
+
 
 ## Table of Contents
 
@@ -20,7 +20,8 @@ The goal of this app is to create an environment for users to save their favorit
 
 ## Roadmap <a name = "roadmap"></a>
 
-- [ ] Add something
+- [ ] Basic GUI
+- [ ] Popular Page
 - [ ] Basic functionality
   - [ ] TV support
   - [ ] Movie support
@@ -30,34 +31,29 @@ The goal of this app is to create an environment for users to save their favorit
 
 ## Built with
 
-TBD
+[Python 3.10.5](https://www.python.org/) - Backend
+
+[Kivy](https://kivy.org/) - Frontend
+
+[The Movie Database](https://www.themoviedb.org/) - Provides show details
+
 
 ## Getting Started <a name = "getting_started"></a>
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See [deployment](#deployment) for notes on how to deploy the project on a live system.
 
 ### Prerequisites
+Python, Kivy, and an internet connection.
 
-What things you need to install the software and how to install them.
-
-```
-Give examples
-```
 
 ### Installing
 
 A step by step series of examples that tell you how to get a development env running.
 
-Say what the step will be
+Kivy can be installed using pip
 
 ```
-Give the example
-```
-
-And repeat
-
-```
-until finished
+pip install kivy
 ```
 
 End with an example of getting some data out of the system or using it for a little demo.
@@ -65,3 +61,16 @@ End with an example of getting some data out of the system or using it for a lit
 ## Usage <a name = "usage"></a>
 
 Add notes about how to use the system.
+
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+[contributors-shield]: https://img.shields.io/github/contributors/RandomProgrammer1124/DiscountPopcornTime.svg?style=for-the-badge
+[contributors-url]: https://github.com/RandomProgrammer1124/DiscountPopcornTime/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/RandomProgrammer1124/DiscountPopcornTime.svg?style=for-the-badge
+[forks-url]: https://github.com/github_username/RandomProgrammer1124/network/members
+[stars-shield]: https://img.shields.io/github/stars/RandomProgrammer1124/DiscountPopcornTime.svg?style=for-the-badge
+[stars-url]: https://github.com/RandomProgrammer1124/DiscountPopcornTime/stargazers
+[issues-shield]: https://img.shields.io/github/issues/RandomProgrammer1124/DiscountPopcornTime.svg?style=for-the-badge
+[issues-url]: https://github.com/RandomProgrammer1124/DiscountPopcornTime/issues
+[license-shield]: https://img.shields.io/github/license/RandomProgrammer1124/DiscountPopcornTime.svg?style=for-the-badge
+[license-url]: https://github.com/RandomProgrammer1124/DiscountPopcornTime/blob/master/LICENSE.txt

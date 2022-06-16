@@ -28,6 +28,9 @@ class TmbdScraper:
             'Connection': 'close'
         }
 
+        self.search_query_results = {}
+
+
     def clear(self):
         self.season_info = {}
         self.popular_page = {}
@@ -56,6 +59,41 @@ class TmbdScraper:
             info.append('https://www.themoviedb.org' + re.search(r'(?<=src=")([^"]+)', each)[0]) # img thumbnail
             self.popular_page[len(self.popular_page)] = info
         return self.popular_page
+
+    def preform_search_query(self, query: str) -> dict:
+        """Preforms a search query on TMDB's website using their standard peremeters. 
+        IE., if it thinks you're searching for a tv show, this method will think you're searching for a tv show
+
+        Args:
+            query (str): Desired search term. Will be added to the end of the string " https://www.themoviedb.org/search?query={query} "
+
+        Returns:
+            dict: Sets self.search_query_results and returns a dictionary of filled values. 
+            The values of the dictionary are [show_name, release_date, show_desc, thumbnail, link]
+        """
+        page = requests.get(f"https://www.themoviedb.org/search?query={query}", headers=self._headers)
+        page = BeautifulSoup(page.text, "html.parser")        
+        content = page.find_all("div", class_='card v4 tight') # samples 20 from the tv shows and movies section. TMDB decision, not mine. Hardcorded limit to remove weirdness
+        tmp = {}
+        for each in content:
+            each = str(each)
+
+            info = []
+
+            info.append(re.search(r'(?<=h2>)([^<]+)', each)[0]) # show name
+            release_date = re.search(r'(?<=<p>)([^<]+)', each)
+            info.append(None) if release_date is None else info.append(release_date[0])
+            show_desc = re.search(r'(?<=<p>)([^<]+)', each)
+            info.append(None) if show_desc is None else info.append(show_desc[0])
+            thumbnail = re.search(r'(?<=<p>)([^<]+)', each)
+            info.append(None) if thumbnail is None else info.append(thumbnail[0])
+            info.append(re.search(r'(?<=href=")([^"]+)', each)[0]) # show link
+
+            tmp[len(tmp)] = info
+            if len(tmp) == 20: # If it can't be found within the first 20 guesses, they should try a better query
+                break
+        self.search_query_results = tmp
+        return self.search_query_results
 
     def get_season(self, tmdbID: str):
         """_summary_

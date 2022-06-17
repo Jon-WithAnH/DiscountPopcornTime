@@ -1,6 +1,7 @@
 '''Placeholder'''
 
 from cgitb import text
+from os import TMP_MAX
 from kivy.app import App
 from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
@@ -14,6 +15,7 @@ from kivy.uix.image import AsyncImage
 from kivy.clock import mainthread
 
 from Scrapers.tmbd import TmbdScraper
+from Pages.SearchPage import SearchPage as sp
 
 import threading
 
@@ -41,6 +43,7 @@ class LoginPage(Screen):
     """Inital landing page for the app"""
     def __init__(self, **kw):
         super().__init__(**kw)
+        self.next_button = Button()
         parent = GridLayout(rows=2)
         self.popular_page_parent = GridLayout(cols=5, rows=4)
 
@@ -59,11 +62,11 @@ class LoginPage(Screen):
     def build_search_layout(self):
         search_layout = GridLayout(cols=4,size_hint_y=None, height=30)
         back_button = Button(text="<-", size_hint_x=None, width=20, disabled=True)
-        next_button = Button(text="->", size_hint_x=None, width=20)
+        self.next_button = Button(text="->", size_hint_x=None, width=20, disabled=True, on_press=self.change)
         search_bar = TextInput(multiline=False, _hint_text="Enter a search", height=30,  size_hint_y=None, on_text_validate=self.submit_query)
         serach_button = Button(text="Search", size_hint=[None, None], height=30, on_press=self.change)
         search_layout.add_widget(back_button)
-        search_layout.add_widget(next_button)
+        search_layout.add_widget(self.next_button)
         search_layout.add_widget(search_bar)
         search_layout.add_widget(serach_button)
         return search_layout
@@ -74,7 +77,8 @@ class LoginPage(Screen):
             return
         print(f"query submitted for {input.text}")
         test1 = self.manager.get_screen("search")
-        test1.getSearchData(input.text)
+        test1.preform_search(input.text)
+        self.manager.current = 'search'
         print(f"test: {test1}")
         global_query = input.text
         
@@ -109,9 +113,10 @@ class LoginPage(Screen):
         # self.popular_page_data
 
     def change(self, button):
-        button.text="It changed"
+        # button.text="It changed"
         # self.getPopularData()
         self.manager.current="search"
+        # self.root.prolly_wont_work()
 
 
 class SearchPage(Screen):
@@ -140,9 +145,9 @@ class SearchPage(Screen):
         
     def build_search_layout(self):
         search_layout = GridLayout(cols=4,size_hint_y=None, height=30)
-        back_button = Button(text="<-", size_hint_x=None, width=20, disabled=True)
-        next_button = Button(text="->", size_hint_x=None, width=20)
-        search_bar = TextInput(multiline=False, _hint_text="Enter a search", height=30,  size_hint_y=None)
+        back_button = Button(text="<-", size_hint_x=None, width=20, on_press=self.go_back_button)
+        next_button = Button(text="->", size_hint_x=None, width=20, disabled=True)
+        search_bar = TextInput(multiline=False, _hint_text="Enter a search", height=30,  size_hint_y=None, on_text_validate=self.preform_search)
         serach_button = Button(text="Search", size_hint=[None, None], height=30, on_press=self.change)
         search_layout.add_widget(back_button)
         search_layout.add_widget(next_button)
@@ -150,26 +155,42 @@ class SearchPage(Screen):
         search_layout.add_widget(serach_button)
         return search_layout
 
-    def getSearchData(self, query: str):
+    def go_back_button(self, button):
+        test1 = self.manager.get_screen("login")
+        test1.next_button.disabled = False
+        self.manager.current = 'login'
+
+    def preform_search(self, query: str):
+        """Method is activated when user sends a search request. It is called within LoginPage.submitQuery(). Page should be inaccessable until this method is actiaved.
+
+        Args:
+            query (str): Desired search term for TMDB
+        """
         tmp = TmbdScraper()
-        tmp = tmp.preform_search_query(query)
-        print(tmp)
+        tmp = tmp.preform_search_query(query.text)
+        print(f"search completed for {query.text}: {len(tmp)} results")
+        self.buildFromSearchPage(tmp)
         # self.setData(tmp)
 
     @mainthread
     def buildFromSearchPage(self, data: dict):
         # assert len(data)==4*5
+        # print(data[0])
+        # exit(0)
         parent = GridLayout(cols=5, rows=4)
         for each in range(len(data)):
             level_2 = BoxLayout(orientation='horizontal', spacing=10)
-            thumby = data[each][4]
-            level_2.add_widget(AsyncImage(source=thumby))
+            if not data[each][3] == "":
+                thumby = 'https://www.themoviedb.org' + data[each][3]
+                level_2.add_widget(AsyncImage(source=thumby))
+            else:
+                level_2.add_widget(Label(text="No Image"))
             level_3 = GridLayout(rows=4)
             # level_3.add_widget(WrappedLabel(text=data[each][0], color=[125,125,125,1]))
             level_3.add_widget(WrappedLabel(text=data[each][0]))
             level_3.add_widget(WrappedLabel(text=data[each][1]))
             level_3.add_widget(WrappedLabel(text=data[each][2]))
-            level_3.add_widget(CustomButton(data[each][3], text='Select'))
+            level_3.add_widget(CustomButton('https://www.themoviedb.org' + data[each][4], text='Select'))
             level_2.add_widget(level_3)
             parent.add_widget(level_2)
         self.popular_page_parent.clear_widgets()
@@ -182,7 +203,14 @@ class SearchPage(Screen):
         # return Button(ext="fk")
 
 
+class Controller:
+    pass
+
 class DiscountPopcornTime(App):
+
+    def prolly_wont_work(self):
+        print("I guess it did work")
+
     def build(self):
 
         sm = ScreenManager(transition=NoTransition())

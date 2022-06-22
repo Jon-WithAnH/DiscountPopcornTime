@@ -2,12 +2,14 @@
 File will handle interactions for https://www.themoviedb.org/
 '''
 
+from platform import release
 import requests
 from bs4 import BeautifulSoup
 import re
 
 class TmbdScraper:
-
+    """Object used for parsing https://www.themoviedb.org/
+    """
     def __str__(self) -> str:
         return f"{self.season_info}"
 
@@ -29,6 +31,8 @@ class TmbdScraper:
         }
 
         self.search_query_results = {}
+        self.seasons = {}
+        self.episode_listing = {}
 
 
     def clear(self):
@@ -56,7 +60,11 @@ class TmbdScraper:
             info.append(re.search(r'(?<=<p>)([^<]+)', each)[0]) # release date
             info.append(re.search(r'(?<=percent=")([^"]+)', each)[0]) # show rating
             info.append('https://www.themoviedb.org' + re.search(r'(?<=href=")(/[^"]+)', each)[0]) # link to page
-            info.append('https://www.themoviedb.org' + re.search(r'(?<=src=")([^"]+)', each)[0]) # img thumbnail
+            thumby = re.search(r'(?<=src=")([^"]+)', each)
+            if thumby: 
+                info.append('https://www.themoviedb.org' + thumby[0]) # img thumbnail
+            else:
+                info.append("")
             self.popular_page[len(self.popular_page)] = info
         return self.popular_page
 
@@ -90,19 +98,85 @@ class TmbdScraper:
             tmp[len(tmp)] = info
             if len(tmp) == 20: # If it can't be found within the first 20 guesses, they should try a better query
                 break
-        for x in range(len(tmp)):
-            print(tmp[x][0])
+        # for x in range(len(tmp)):
+            # print(tmp[x][0])
         self.search_query_results = tmp
         return self.search_query_results
 
-    def get_season(self, tmdbID: str):
-        """_summary_
+    def get_season(self, tmdbID: str) -> dict:
+        """Gets all seasons and season descriptions of the given show
 
         Args:
-            tmdbID (str): _description_
+            tmdbID (str): The str provided by TMDB through their link page. Format: /tv/14658
+        Returns:
+            dict: Sets self.seasons and returns a dictionary of filled values. 
+            The values of the dictionary are [season_name, release_date (WARN: Eg. "2020 | 1 Episode"), season_desc, thumbnail, link]
         """
-        pass
+        ## Check ID to make sure it's not a movie
+        if not tmdbID.__contains__("tv"):
+            # TODO: This stuff
+            print("Movie/Anime was selected. TODO: Activate movie method")
+            return
+        seasons = {}
+        # https://www.themoviedb.org/tv/14658-survivor/seasons
+        tmdbID = tmdbID.split("/") # ['', 'tv', '14658']
+        page = requests.get(f"https://www.themoviedb.org/tv/{tmdbID[-1]}/seasons", headers=self._headers)
+        page = BeautifulSoup(page.text, "html.parser")
+        # print(page)  
+        content = page.find_all("div", class_='season') 
+        # print(f"{len(content)} results")
+        for each in content:
+            # print(each)
+            each = str(each)
+            info = []
+            info.append(re.search(r'(?<=">)([^<|\n]+)', each)[0]) # season name
+            release_date = re.search(r'(?<=<h4>)([^<]+)', each) # Eg. "2020 | 1 Episode"
+            info.append("") if release_date is None else info.append(release_date[0])
+            season_desc = re.search(r'(?<=<p>)([^<]+)', each) # season desc
+            info.append("") if season_desc is None else info.append(season_desc[0])
+            thumbnail = re.search(r'(?<=src=")([^"]+)', each)
+            info.append("") if thumbnail is None else info.append(thumbnail[0])
+            info.append(re.search(r'(?<=href=")([^"]+)', each)[0]) # show link
+            seasons[len(seasons)] = info
+        
+        self.seasons = seasons
+        return self.seasons
+
+    def get_episodes(self, tmdbID: str) -> dict:
+        """Gets all infomation about the given season for a given show
+
+        Args:
+            tmdbID (str): The str provided by TMDB through their link page. Format: /tv/14658-survivor/season/42
+        Returns:
+            dict: Sets self.episode_listing and returns it. 
+            The values of the dictionary are [season_number, episode_title, release_date, episode_duration, episode_desc, thumbnail, link]
+        """
+        # https://www.themoviedb.org/tv/14658-survivor/season/42
+        # /tv/14658-survivor/season/42
+        results = {}
+        page = requests.get(f"https://www.themoviedb.org{tmdbID}", headers=self._headers)
+        page = BeautifulSoup(page.text, "html.parser")
+        content = page.find_all("div", class_='card') 
+        # print(f"{len(content)} episode results for {tmdbID}")  
+
+        for each in content:
+            each = str(each)
+            info = []
+            info.append(re.search(r'(?<=season=")([^"]+)', each)[0]) # season_number
+            info.append(re.search(r'(?<=">)([^"]+)(?=</a><)', each)[0]) # episode_title
+            info.append(re.search(r'(?<=<span>)([^<]+)', each)[0]) # release_date
+            info.append(re.search(r'(?<=<span>)([^<]+)', each)[1]) # episode_duration
+            info.append(re.search(r'(?<=<p>)([^<]+)', each)[0]) # episode_desc
+            thumbnail = re.search(r'(?<=src=")([^"]+)', each)
+            info.append("") if thumbnail is None else info.append(thumbnail[0])
+            info.append(re.search(r'(?<=href=")([^"]+)', each)[0]) # episode link
+            results[len(results)] = info
+
+        self.episode_listing = results
+        return self.episode_listing
+
 
 if __name__ == '__main__':
     # test = requests.get("https://www.themoviedb.org/")
-    pass
+    tmp = TmbdScraper()
+    tmp.get_season("/tv/14658")

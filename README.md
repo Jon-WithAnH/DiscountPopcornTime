@@ -20,10 +20,10 @@ The goal of this app is to create an environment for users to save their favorit
 
 ## Roadmap <a name = "roadmap"></a>
 
-- [ ] Basic GUI
-- [ ] Popular Page
+- [x] Basic GUI
+- [x] Popular Page
 - [ ] Basic functionality
-  - [ ] TV support
+  - [x] TV support
   - [ ] Movie support
 - [ ] Favorite list
 - [ ] Watch History

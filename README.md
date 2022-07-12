@@ -22,9 +22,13 @@ The goal of this app is to create an environment for users to save their favorit
 
 - [x] Basic GUI
 - [x] Popular Page
-- [ ] Basic functionality
-  - [x] TV support
-  - [ ] Movie support
+- [ ] Media functionality
+  - [x] TV shows
+  - [x] Movies
+  - [ ] Sports
+    - [ ] NBA
+    - [ ] NFL
+    - [ ] NHL
 - [ ] Favorite list
 - [ ] Watch History
 - [ ] Remember videos played 

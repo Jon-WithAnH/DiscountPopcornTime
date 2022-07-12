@@ -16,14 +16,17 @@ class TmbdScraper:
     def __init__(self) -> None:
         
         self.season_info = {}
-        """dict: 
-            
+        """
+        dict: 
             Key (int): season number
-
-            Value (list): []
-            
+            Value (list): [show_name, release_date, show_desc, thumbnail, link]
         """
         self.popular_page = {}
+        """
+        dict: 
+            Key (int): Number placement on the popular page
+            Value (list): []
+        """
 
         self._headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:77.0) Gecko/20100101 Firefox/77.0',
@@ -31,6 +34,10 @@ class TmbdScraper:
         }
 
         self.search_query_results = {}
+        """
+        dict:
+            Key values are in the order of: [show_name, release_date, show_desc, thumbnail, link]
+        """
         self.seasons = {}
         self.episode_listing = {}
 
@@ -41,13 +48,22 @@ class TmbdScraper:
 
     def get_popular_movies(self) -> dict:
         url = "https://www.themoviedb.org/movie"
-        return self._get_popular_page_info(url)
+        return self.__get_popular_page_info(url)
 
     def get_popular_tv_shows(self) -> dict:
         url = "https://www.themoviedb.org/tv"
-        return self._get_popular_page_info(url)
+        return self.__get_popular_page_info(url)
 
-    def _get_popular_page_info(self, url) -> dict:
+    def __get_popular_page_info(self, url: str) -> dict:
+        """Internally used
+
+        Args:
+            url (str): _description_
+
+        Returns:
+            dict: Information about each title on the popular page.
+            Each key has the value in the order: [show_title, release_date, show_rating, link, thumbnail]
+        """
         if self.popular_page:
             self.popular_page = {}
         page = requests.get(url, headers=self._headers)
@@ -103,20 +119,21 @@ class TmbdScraper:
         self.search_query_results = tmp
         return self.search_query_results
 
-    def get_season(self, tmdbID: str) -> dict:
+    def get_season(self, tmdbID: str) -> dict|None:
         """Gets all seasons and season descriptions of the given show
 
         Args:
             tmdbID (str): The str provided by TMDB through their link page. Format: /tv/14658
         Returns:
             dict: Sets self.seasons and returns a dictionary of filled values. 
-            The values of the dictionary are [season_name, release_date (WARN: Eg. "2020 | 1 Episode"), season_desc, thumbnail, link]
+            None if the query is not valid for seasons. IE., it's a movie or an anime (not supported).
+            The values of the dictionary are [season_name, release_date (WARN: Eg. "2020 | 1 Episode"), season_desc, thumbnail, link].
         """
         ## Check ID to make sure it's not a movie
         if not tmdbID.__contains__("tv"):
             # TODO: This stuff
             print("Movie/Anime was selected. TODO: Activate movie method")
-            return
+            return None
         seasons = {}
         # https://www.themoviedb.org/tv/14658-survivor/seasons
         tmdbID = tmdbID.split("/") # ['', 'tv', '14658']

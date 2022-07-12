@@ -4,6 +4,7 @@ from kivy.app import App
 from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.textinput import TextInput
 # from kivymd.uix.button import MDIconButton
 from kivy.uix.button import Button
@@ -26,6 +27,7 @@ class CustomButton(Button):
         self.link = link
     
     def on_press(self):
+        print(self.link)
         pass
     
 class WrappedLabel(Label):
@@ -94,7 +96,14 @@ class LoginPage(Screen):
             if thumby == "":
                 level_2.add_widget(WrappedLabel(text="No Image"))
             else:
-                level_2.add_widget(AsyncImage(source=thumby))
+                float_test = FloatLayout()
+                float_test.add_widget(AsyncImage(source=thumby, pos_hint={"center_x": .5, "center_y": .5}))
+                float_test.add_widget(Button(text="FAV", size_hint=(.2, .2), pos_hint={"center_x": .1, "center_y": .9}))
+                float_test.add_widget(Button(text="WL", size_hint=(.2, .2), pos_hint={"center_x": .9, "center_y": .9}))
+                # float_test.add_widget(Button(text="any", size_hint=(.5, .2), pos=(200,210)))
+                level_2.add_widget(float_test)
+                # level_2.add_widget(AsyncImage(source=thumby))
+                # level_2.add_widget(AsyncImage(source=thumby))
             level_3 = GridLayout(rows=4)
             # level_3.add_widget(WrappedLabel(text=data[each][0], color=[125,125,125,1]))
             level_3.add_widget(WrappedLabel(text=data[each][0]))
@@ -172,6 +181,9 @@ class SearchPage(Screen):
             query (str): Desired search term for TMDB
         """
         tmp = self.tmbd_parser.preform_search_query(query.text)
+        if tmp is None:
+            print("movie")
+            return
         print(f"Search completed for {query.text}: {len(tmp)} results")
         self.buildFromSearchPage(tmp)
         # self.setData(tmp)
@@ -186,7 +198,11 @@ class SearchPage(Screen):
             level_2 = BoxLayout(orientation='horizontal', spacing=10)
             if not data[each][3] == "":
                 thumby = 'https://www.themoviedb.org' + data[each][3]
-                level_2.add_widget(AsyncImage(source=thumby))
+                float_test = FloatLayout()
+                # float_test.add_widget(AsyncImage(source=thumby))
+                float_test.add_widget(Button(text="any", size_hint=(.5, .2), pos=(0,0)))
+                level_2.add_widget(float_test)
+                # level_2.add_widget(AsyncImage(source=thumby))
             else:
                 level_2.add_widget(Label(text="No Image"))
             level_3 = GridLayout(rows=4)
@@ -204,8 +220,10 @@ class SearchPage(Screen):
     def selected_content(self, button: CustomButton):
         # print(f'https://www.themoviedb.org{button.link}')
         test1 = self.manager.get_screen("seasons")
-        test1.get_seasons_info(button)
-        self.manager.current = 'seasons'        
+        result = test1.get_seasons_info(button)
+        print(result)
+        if result:
+            self.manager.current = 'seasons'        
         # self.manager.switch_to('login', direction='left')
 
 class SeasonsPage(Screen):
@@ -214,11 +232,26 @@ class SeasonsPage(Screen):
         super().__init__(**kw)
         self.tmbd_parser = TmbdScraper()
 
-    def get_seasons_info(self, button: CustomButton):
+    def get_seasons_info(self, button: CustomButton) -> bool:
+        """Feeds the parser link information contained within the button.
+
+        Args:
+            button (CustomButton): CustomButton that holds the link to wherever the user wants to go. Eg., "/movie/19995"
+
+        Returns:
+            bool: False if it is a movie or an anime. True if it's a TV show and the parser pulled relevent data.
+        """
         # print(f"From SeasonsPage: {button.link}")
         season_info = self.tmbd_parser.get_season(button.link)
+        if season_info is None:
+            tmp = button.link.split("/")
+            print(f"https://www.themoviedb.org{button.link}")
+            print(f"https://fsapi.xyz/tmdb-movie/{tmp[-1]}")
+            # https://fsapi.xyz/tmdb-movie/19995
+            return False
         print(f"Found {len(season_info)} seasons")
         self.build_seasons_page(season_info)
+        return True
 
     def build_seasons_page(self, data: dict):
         scroll = ScrollView()

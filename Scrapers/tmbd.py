@@ -62,7 +62,7 @@ class TmbdScraper:
 
         Returns:
             dict: Information about each title on the popular page.
-            Each key has the value in the order: [show_title, release_date, show_rating, link, thumbnail]
+            Each key has the value in the order: [show_title, release_date, show_rating, thumbnail, link]
         """
         if self.popular_page:
             self.popular_page = {}
@@ -75,12 +75,12 @@ class TmbdScraper:
             info.append(re.search(r'(?<=title=")([^"]+)', each)[0]) # show title
             info.append(re.search(r'(?<=<p>)([^<]+)', each)[0]) # release date
             info.append(re.search(r'(?<=percent=")([^"]+)', each)[0]) # show rating
-            info.append('https://www.themoviedb.org' + re.search(r'(?<=href=")(/[^"]+)', each)[0]) # link to page
             thumby = re.search(r'(?<=src=")([^"]+)', each)
             if thumby: 
                 info.append('https://www.themoviedb.org' + thumby[0]) # img thumbnail
             else:
                 info.append("")
+            info.append('https://www.themoviedb.org' + re.search(r'(?<=href=")(/[^"]+)', each)[0]) # link to page
             self.popular_page[len(self.popular_page)] = info
         return self.popular_page
 

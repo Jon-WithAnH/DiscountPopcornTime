@@ -41,6 +41,8 @@ The goal of this app is to create an environment for users to save their favorit
 
 [The Movie Database](https://www.themoviedb.org/) - Provides show details
 
+SQL - Database for favorites, watch later, and other persistant lists
+
 
 ## Getting Started <a name = "getting_started"></a>
 
@@ -60,6 +62,10 @@ Kivy can be installed using pip
 pip install kivy
 ```
 
+sql
+```
+pip install mysql-connector-python
+```
 End with an example of getting some data out of the system or using it for a little demo.
 
 ## Usage <a name = "usage"></a>

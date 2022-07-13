@@ -15,6 +15,9 @@ from kivy.clock import mainthread
 
 from kivy.uix.scrollview import ScrollView
 
+
+from ./sql import tes
+
 from Scrapers.tmbd import TmbdScraper
 # from Pages.SearchPage import SearchPage as sp
 
@@ -92,24 +95,26 @@ class LoginPage(Screen):
         parent = GridLayout(cols=5, rows=4)
         for each in range(len(data)):
             level_2 = BoxLayout(orientation='horizontal', spacing=10)
-            thumby = data[each][4]
+            thumby = data[each][-2]
             if thumby == "":
+                # TODO: Repeat code
+                float_test = FloatLayout()
+                float_test.add_widget(AsyncImage(source=thumby, pos_hint={"center_x": .5, "center_y": .5}))
+                float_test.add_widget(CustomButton(data[each][-1], text="FAV", size_hint=(.2, .2), pos_hint={"center_x": .1, "center_y": .9}))
+                float_test.add_widget(CustomButton(data[each][-1], text="WL", size_hint=(.2, .2), pos_hint={"center_x": .9, "center_y": .9}))
                 level_2.add_widget(WrappedLabel(text="No Image"))
             else:
                 float_test = FloatLayout()
                 float_test.add_widget(AsyncImage(source=thumby, pos_hint={"center_x": .5, "center_y": .5}))
-                float_test.add_widget(Button(text="FAV", size_hint=(.2, .2), pos_hint={"center_x": .1, "center_y": .9}))
-                float_test.add_widget(Button(text="WL", size_hint=(.2, .2), pos_hint={"center_x": .9, "center_y": .9}))
-                # float_test.add_widget(Button(text="any", size_hint=(.5, .2), pos=(200,210)))
+                float_test.add_widget(CustomButton(data[each][-1], text="FAV", size_hint=(.2, .2), pos_hint={"center_x": .1, "center_y": .9}))
+                float_test.add_widget(CustomButton(data[each][-1], text="WL", size_hint=(.2, .2), pos_hint={"center_x": .9, "center_y": .9}))
                 level_2.add_widget(float_test)
-                # level_2.add_widget(AsyncImage(source=thumby))
-                # level_2.add_widget(AsyncImage(source=thumby))
             level_3 = GridLayout(rows=4)
             # level_3.add_widget(WrappedLabel(text=data[each][0], color=[125,125,125,1]))
             level_3.add_widget(WrappedLabel(text=data[each][0]))
             level_3.add_widget(WrappedLabel(text=data[each][1]))
             level_3.add_widget(WrappedLabel(text=data[each][2]))
-            level_3.add_widget(CustomButton(data[each][3], text='Select'))
+            level_3.add_widget(CustomButton(data[each][-1], text='Select'))
             level_2.add_widget(level_3)
             parent.add_widget(level_2)
         return parent  

@@ -1,4 +1,3 @@
-from CustomDatatypes.butt import butt
 import mysql.connector
 
 class SQLScripts:
@@ -18,14 +17,27 @@ class SQLScripts:
               host="127.0.0.1",
               user="root",
               password="admin",
-              database="favorites"
+              database="discountpopcorntime"
             )
 
-        self.mycursor = mydb.cursor()
-        self.mycursor.execute("SHOW TABLES")
+        self.mycursor = mydb.cursor(buffered=True, dictionary=True)
+        # self.mycursor.execute("CREATE TABLE favorites (tmdbID VARCHAR(255), address VARCHAR(255))")
+        # self.mycursor.execute("SHOW TABLES")
+        # self.mycursor.execute("DROP TABLE favorites")
+
+    def create_tables(self):
+        self.mycursor.execute("CREATE TABLE favorites (tmdbID VARCHAR(255), address VARCHAR(255))")
 
     def check_if_exists(self):
-        self.mycursor.execute("SHOW TABLES")
+        mydb = mysql.connector.connect(
+              host="127.0.0.1",
+              user="root",
+              password="admin",
+              database="discountpopcorntime"
+            )
+        self.mycursor = mydb.cursor(buffered=True, dictionary=True)
+        test = self.mycursor.execute("SELECT `tmdbID` FROM `discountpopcorntime`.`favorites`;")
+        print(test)
 
     def method1(self):
         print("test")
@@ -35,4 +47,4 @@ class SQLScripts:
 if __name__ == '__main__':
     test = SQLScripts()
     test.build()
-    # test.check_if_exists()
+    test.check_if_exists()

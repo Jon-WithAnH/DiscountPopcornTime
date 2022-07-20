@@ -16,7 +16,6 @@ from kivy.clock import mainthread
 from kivy.uix.scrollview import ScrollView
 
 
-from ./sql import tes
 
 from Scrapers.tmbd import TmbdScraper
 # from Pages.SearchPage import SearchPage as sp

@@ -61,8 +61,9 @@ Kivy can be installed using pip
 ```
 pip install kivy
 ```
+You'll need to make sure you've installed MySQL as it is not hosted on an external machine.
 
-sql
+sql connector
 ```
 pip install mysql-connector-python
 ```

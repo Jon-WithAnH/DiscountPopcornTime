@@ -2,6 +2,7 @@ from kivy.app import App
 from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.textinput import TextInput
 # from kivymd.uix.button import MDIconButton
 from kivy.uix.button import Button
@@ -13,17 +14,20 @@ from kivy.clock import mainthread
 # from Scrapers.tmbd import TmbdScraper
 # import Scrapers.tmbd
 # from Scrapers.tmbd.py import TmbdScraper
-import Pages.ExtendedFunctions as ExtendedFunctions
+import ExtendedFunctions
 
 import threading
+
+from .Scrapers.tmbd import TmbdScraper
 
 class SearchPage(Screen):
 
     def test(self):
         print("Hello from test!")
 
-    def __init__(self, **kw):
+    def __init__(self, tmbdScraper: TmbdScraper, **kw):
         super().__init__(**kw)
+        self.tmbd_parser = tmbdScraper
 
         parent = GridLayout(rows=2)
         self.popular_page_parent = GridLayout(cols=5, rows=4)
@@ -64,10 +68,12 @@ class SearchPage(Screen):
         Args:
             query (str): Desired search term for TMDB
         """
-        tmp = TmbdScraper()
-        # tmp = tmp.preform_search_query(query.text)
-        # print(f"search completed for {query.text}: {len(tmp)} results")
-        # self.buildFromSearchPage(tmp)
+        tmp = self.tmbd_parser.preform_search_query(query.text)
+        if tmp is None:
+            print("movie")
+            return
+        print(f"Search completed for {query.text}: {len(tmp)} results")
+        self.buildFromSearchPage(tmp)
         # self.setData(tmp)
 
     @mainthread
@@ -78,16 +84,32 @@ class SearchPage(Screen):
         parent = GridLayout(cols=5, rows=4)
         for each in range(len(data)):
             level_2 = BoxLayout(orientation='horizontal', spacing=10)
-            thumby = 'https://www.themoviedb.org' + data[each][3]
-            level_2.add_widget(AsyncImage(source=thumby))
+            if not data[each][3] == "":
+                thumby = 'https://www.themoviedb.org' + data[each][3]
+                float_test = FloatLayout()
+                # float_test.add_widget(AsyncImage(source=thumby))
+                float_test.add_widget(Button(text="any", size_hint=(.5, .2), pos=(0,0)))
+                level_2.add_widget(float_test)
+                # level_2.add_widget(AsyncImage(source=thumby))
+            else:
+                level_2.add_widget(Label(text="No Image"))
             level_3 = GridLayout(rows=4)
             # level_3.add_widget(WrappedLabel(text=data[each][0], color=[125,125,125,1]))
             level_3.add_widget(ExtendedFunctions.WrappedLabel(text=data[each][0]))
             level_3.add_widget(ExtendedFunctions.WrappedLabel(text=data[each][1]))
             level_3.add_widget(ExtendedFunctions.WrappedLabel(text=data[each][2]))
-            level_3.add_widget(ExtendedFunctions.CustomButton(data[each][4], text='Select'))
+            level_3.add_widget(ExtendedFunctions.CustomButton(data[each][4], text='Select', on_press=self.selected_content))
             level_2.add_widget(level_3)
             parent.add_widget(level_2)
         self.popular_page_parent.clear_widgets()
         self.popular_page_parent.add_widget(parent)
-        return parent
+        return parent  
+
+    def selected_content(self, button: ExtendedFunctions.CustomButton):
+        # print(f'https://www.themoviedb.org{button.link}')
+        test1 = self.manager.get_screen("seasons")
+        result = test1.get_seasons_info(button)
+        print(result)
+        if result:
+            self.manager.current = 'seasons'        
+        # self.manager.switch_to('login', direction='left')

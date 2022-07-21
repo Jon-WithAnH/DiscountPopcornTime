@@ -1,3 +1,7 @@
+from tkinter import E
+from Scrapers.tmbd import TmbdScraper
+from Pages.ExtendedFunctions import WrappedLabel, CustomButton
+
 from kivy.app import App
 from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
@@ -14,11 +18,6 @@ from kivy.clock import mainthread
 # from Scrapers.tmbd import TmbdScraper
 # import Scrapers.tmbd
 # from Scrapers.tmbd.py import TmbdScraper
-import ExtendedFunctions
-
-import threading
-
-from .Scrapers.tmbd import TmbdScraper
 
 class SearchPage(Screen):
 
@@ -85,27 +84,33 @@ class SearchPage(Screen):
         for each in range(len(data)):
             level_2 = BoxLayout(orientation='horizontal', spacing=10)
             if not data[each][3] == "":
+                data[each][3].replace("94", "220")
+                data[each][3].replace("141", "330")
                 thumby = 'https://www.themoviedb.org' + data[each][3]
+                
+                # https://www.themoviedb.org/t/p/w94_and_h141_bestv2/5R125JAIh1N38pzHp2dRsBpOVNY.jpg
+                # https://www.themoviedb.org/t/p/w220_and_h330_face/9HFFwZOTBB7IPFmn9E0MXdWave3.jpg
+                print(thumby)
                 float_test = FloatLayout()
-                # float_test.add_widget(AsyncImage(source=thumby))
-                float_test.add_widget(Button(text="any", size_hint=(.5, .2), pos=(0,0)))
+                float_test.add_widget(AsyncImage(source=thumby, pos_hint={"center_x": .5, "center_y": .5}))
+                float_test.add_widget(CustomButton(data[each][-1], text="FAV", size_hint=(.2, .2), pos_hint={"center_x": .1, "center_y": .9}))
+                float_test.add_widget(CustomButton(data[each][-1], text="WL", size_hint=(.2, .2), pos_hint={"center_x": .9, "center_y": .9}))
                 level_2.add_widget(float_test)
-                # level_2.add_widget(AsyncImage(source=thumby))
             else:
                 level_2.add_widget(Label(text="No Image"))
             level_3 = GridLayout(rows=4)
             # level_3.add_widget(WrappedLabel(text=data[each][0], color=[125,125,125,1]))
-            level_3.add_widget(ExtendedFunctions.WrappedLabel(text=data[each][0]))
-            level_3.add_widget(ExtendedFunctions.WrappedLabel(text=data[each][1]))
-            level_3.add_widget(ExtendedFunctions.WrappedLabel(text=data[each][2]))
-            level_3.add_widget(ExtendedFunctions.CustomButton(data[each][4], text='Select', on_press=self.selected_content))
+            level_3.add_widget(WrappedLabel(text=data[each][0]))
+            level_3.add_widget(WrappedLabel(text=data[each][1]))
+            level_3.add_widget(WrappedLabel(text=data[each][2]))
+            level_3.add_widget(CustomButton(data[each][4], text='Select', on_press=self.selected_content))
             level_2.add_widget(level_3)
             parent.add_widget(level_2)
         self.popular_page_parent.clear_widgets()
         self.popular_page_parent.add_widget(parent)
         return parent  
 
-    def selected_content(self, button: ExtendedFunctions.CustomButton):
+    def selected_content(self, button:CustomButton):
         # print(f'https://www.themoviedb.org{button.link}')
         test1 = self.manager.get_screen("seasons")
         result = test1.get_seasons_info(button)

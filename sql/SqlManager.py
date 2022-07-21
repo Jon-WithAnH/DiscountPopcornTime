@@ -1,7 +1,13 @@
 import mysql.connector
 from mysql.connector import errorcode
 
+
 class SqlContextManager():
+    """Context manager for the Sql Database
+    """
+    SUPPORTED_DB_TABLES_ALIAS = ['FAV', 'WL']
+    SUPPORTED_DB_TABLES = ['favorites', 'watch_later']
+
     def __init__(self):
         self.mydb = mysql.connector.connect(
               host="127.0.0.1",
@@ -28,7 +34,7 @@ class SqlContextManager():
         TABLES['favorites'] = (
                 "CREATE TABLE `favorites` ("
                 "  `show_title` VARCHAR(255) NOT NULL,"
-                "  `release_date` VARCHAR(10) NOT NULL,"
+                "  `release_date` VARCHAR(20) NOT NULL,"
                 "  `show_rating` VARCHAR(5) NULL,"
                 "  `thumbnail` VARCHAR(255) NOT NULL,"
                 "  `link` VARCHAR(255) NOT NULL,"
@@ -38,7 +44,7 @@ class SqlContextManager():
         TABLES['watch_later'] = (
                 "CREATE TABLE `watch_later` ("
                 "  `show_title` VARCHAR(255) NOT NULL,"
-                "  `release_date` VARCHAR(10) NOT NULL,"
+                "  `release_date` VARCHAR(20) NOT NULL,"
                 "  `show_rating` VARCHAR(5) NULL,"
                 "  `thumbnail` VARCHAR(255) NOT NULL,"
                 "  `link` VARCHAR(255) NOT NULL,"
@@ -65,34 +71,43 @@ class SqlContextManager():
                 print("OK")
             # self.mycursor.execute("CREATE TABLE favorites (show_title VARCHAR(255), release_date VARCHAR(10), show_rating VARCHAR(5), thumbnail VARCHAR(255), link VARCHAR(255) UNIQUE)")
 
-    def add_favorite(self, data: list) -> bool:
-        """add the entry with the tmdb
+    def commit(self, table_name: str, data: list) -> bool:
+        """Commit the new information into the DB
 
         Args:
-            tmdbID (str): TmdbID of the content. Expected format: /tv/71712
-            address (str): _description_
+            table_name (str): Table to be searched. Valid options are either "favorites" or "watch_later"
+            data (list): list of len(5) the holds the information about the title
 
         Returns:
             bool: True on success
         """
         assert len(data) == 5, "Not enough data to populate table. List must have 5 indexes"
-        # check if tmdbID already exists. If so, remove it
-
+        # print(data)
         # Add entry to DB
-        # self.mycursor.execute("INSERT INTO `discountpopcorntime`.`favorites` (`tmdbID`,`address`) VALUES ('%s', '%s');" % (tmdbID, address))
         try:
-            self.mycursor.execute("INSERT INTO `discountpopcorntime`.`favorites` VALUES ('%s', '%s', '%s', '%s', '%s');" % (data[0], data[1],data[2],data[3],data[4]))
+            self.mycursor.execute("INSERT INTO %s VALUES ('%s', '%s', '%s', '%s', '%s');" % (table_name, data[0], data[1],data[2],data[3],data[4]))
             self.mydb.commit()
         except mysql.connector.errors.IntegrityError as err:
             print("Entry already exists")
-            # TODO: Toggle Entry
             return False
-        # print(self.mycursor.execute("INSERT INTO `discountpopcorntime`.`favorites` (tmdbID, address) VALUES ('%s', '%s');" % (tmdbID, address)))
-        # print(self.mycursor.execute("SELECT 'tmdbID' FROM 'discountpopcorntime'.'favorites';"))
-        #INSERT INTO `discountpopcorntime`.`favorites`
+
+    def delete(self, table_name: str, data: list):
+        print(f"Deleteing from DB: {data}")
+        self.mycursor.execute("DELETE FROM %s WHERE link='%s'" % (table_name, data[-1]))
+        self.mydb.commit()
+
 
     def search_table(self, table_name: str, link: str) -> bool:
-        self.mycursor.execute("SELECT * FROM %s WHERE link='%s'" % (table_name, link))
+        """Searches the desired tables for any entry
+
+        Args:
+            table_name (str): Table to be searched. Valid options are either "favorites" or "watch_later"
+            link (str): tmdbID. Ex "/tv/14658"
+
+        Returns:
+            bool: True if exists within the DB. False is not.
+        """
+        self.mycursor.execute("SELECT * FROM %s WHERE link='%s'" % (table_name, link[-1]))
         result = self.mycursor.fetchone()
         if result:
             return True
@@ -112,12 +127,13 @@ class SqlContextManager():
         query = ("SELECT * FROM %s" % table_name)
         self.mycursor.execute(query)
         return self.mycursor.fetchall()
- 
-with SqlContextManager() as manager:
-    # print('with statement block')
-    # manager.initalize_tables()
-    test_1 = ['survivor', '1/24/2000', None, '/t/p/w94_and_h141_bestv2/5TVfHUnY84VAVur8FNllbkgnKmQ.jpg', '/tv/14658']
-    # manager.add_favorite(test_1)
-    if manager.search_table('favorites', '/tv/14658'):
-        print(True)
-    # manager.show_tables()
+
+if __name__ == '__main__':
+    with SqlContextManager() as manager:
+        # print('with statement block')
+        manager.initalize_tables()
+        # test_1 = ['survivor', '1/24/2000', None, '/t/p/w94_and_h141_bestv2/5TVfHUnY84VAVur8FNllbkgnKmQ.jpg', '/tv/14658']
+        # manager.add_favorite(test_1)
+        # if manager.search_table('favorites', '/tv/14658'):
+            # print(True)
+        # manager.show_tables()

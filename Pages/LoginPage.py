@@ -1,5 +1,5 @@
 from Scrapers.tmbd import TmbdScraper
-from Pages.ExtendedFunctions import WrappedLabel, CustomButton, DBButton
+from Pages.ExtendedFunctions import WrappedLabel, CustomButton, DBButton, SubmitButton
 
 from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
@@ -9,6 +9,7 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 from kivy.uix.screenmanager import Screen
 from kivy.uix.image import AsyncImage
+
 from kivy.clock import mainthread
 import threading
 
@@ -18,7 +19,7 @@ class LoginPage(Screen):
         super().__init__(**kw)
         self.tmdb_parser = scraper
 
-
+        # Loader.num_workers = 20
         self.next_button = Button()
         parent = GridLayout(rows=2)
         self.popular_page_parent = GridLayout(cols=5, rows=4)
@@ -64,26 +65,20 @@ class LoginPage(Screen):
         for each in range(len(data)):
             level_2 = BoxLayout(orientation='horizontal', spacing=10)
             thumby = data[each][-2]
+            float_test = FloatLayout()
             if thumby == "":
-                # TODO: Repeat code
-                float_test = FloatLayout()
-                # float_test.add_widget(AsyncImage(source=thumby, pos_hint={"center_x": .5, "center_y": .5}))
-                float_test.add_widget(DBButton(data[each], text="FAV", size_hint=(.2, .2), pos_hint={"center_x": .1, "center_y": .9}))
-                float_test.add_widget(DBButton(data[each], text="WL", size_hint=(.2, .2), pos_hint={"center_x": .9, "center_y": .9}))
-                level_2.add_widget(WrappedLabel(text="No Image"))
+                level_2.add_widget(float_test.add_widget(WrappedLabel(text="No Image", pos_hint={"center_x": .5, "center_y": .5})))
             else:
-                float_test = FloatLayout()
-                # print(thumby)
                 float_test.add_widget(AsyncImage(source=thumby, pos_hint={"center_x": .5, "center_y": .5}))
-                float_test.add_widget(DBButton(data[each], text="FAV", size_hint=(.2, .2), pos_hint={"center_x": .1, "center_y": .9}))
-                float_test.add_widget(DBButton(data[each], text="WL", size_hint=(.2, .2), pos_hint={"center_x": .9, "center_y": .9}))
                 level_2.add_widget(float_test)
+
+            float_test.add_widget(DBButton("FAV", data[each], pos_hint={"center_x": .1, "center_y": .9}))
+            float_test.add_widget(DBButton('WL', data[each], pos_hint={"center_x": .9, "center_y": .9}))
             level_3 = GridLayout(rows=4)
-            # level_3.add_widget(WrappedLabel(text=data[each][0], color=[125,125,125,1]))
             level_3.add_widget(WrappedLabel(text=data[each][0]))
             level_3.add_widget(WrappedLabel(text=data[each][1]))
             level_3.add_widget(WrappedLabel(text=data[each][2]))
-            level_3.add_widget(CustomButton(data[each][-1], text='Select'))
+            level_3.add_widget(SubmitButton(data[each][-1], text='Select', background_normal=""))
             level_2.add_widget(level_3)
             parent.add_widget(level_2)
         return parent  
@@ -99,8 +94,10 @@ class LoginPage(Screen):
         
         # self.popular_page_data
 
-    def change(self, button):
-        # button.text="It changed"
-        # self.getPopularData()
+    def change(self, button: Button):
+        """Used to transition the screen upon a search request
+
+        Args:
+            button (Button): Required peremeter for the button used to trigger this function
+        """
         self.manager.current="search"
-        # self.root.prolly_wont_work()

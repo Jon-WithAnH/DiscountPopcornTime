@@ -1,6 +1,5 @@
-from tkinter import E
 from Scrapers.tmbd import TmbdScraper
-from Pages.ExtendedFunctions import WrappedLabel, CustomButton
+from Pages.ExtendedFunctions import WrappedLabel, CustomButton, DBButton
 
 from kivy.app import App
 from kivy.uix.label import Label
@@ -8,7 +7,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.textinput import TextInput
-# from kivymd.uix.button import MDIconButton
+from kivy.uix.image import Image
 from kivy.uix.button import Button
 from kivy.uix.screenmanager import Screen, ScreenManager, NoTransition
 from kivy.core.window import Window
@@ -80,24 +79,29 @@ class SearchPage(Screen):
         # assert len(data)==4*5
         # print(data[0])
         # exit(0)
+        if len(data) == 0:
+            self.popular_page_parent.clear_widgets()
+            self.popular_page_parent.add_widget(Label(text="No results found"))
+            return
+
         parent = GridLayout(cols=5, rows=4)
         for each in range(len(data)):
             level_2 = BoxLayout(orientation='horizontal', spacing=10)
+            float_test = FloatLayout()
             if not data[each][3] == "":
-                data[each][3].replace("94", "220")
-                data[each][3].replace("141", "330")
-                thumby = 'https://www.themoviedb.org' + data[each][3]
-                
+                # Reaplacing the size of the images to match the images from the front page
                 # https://www.themoviedb.org/t/p/w94_and_h141_bestv2/5R125JAIh1N38pzHp2dRsBpOVNY.jpg
                 # https://www.themoviedb.org/t/p/w220_and_h330_face/9HFFwZOTBB7IPFmn9E0MXdWave3.jpg
-                print(thumby)
-                float_test = FloatLayout()
+                data[each][3] = data[each][3].replace("94", "220")
+                data[each][3] = data[each][3].replace("141", "330")
+                thumby = 'https://www.themoviedb.org' + data[each][3]  
                 float_test.add_widget(AsyncImage(source=thumby, pos_hint={"center_x": .5, "center_y": .5}))
-                float_test.add_widget(CustomButton(data[each][-1], text="FAV", size_hint=(.2, .2), pos_hint={"center_x": .1, "center_y": .9}))
-                float_test.add_widget(CustomButton(data[each][-1], text="WL", size_hint=(.2, .2), pos_hint={"center_x": .9, "center_y": .9}))
                 level_2.add_widget(float_test)
             else:
-                level_2.add_widget(Label(text="No Image"))
+                float_test.add_widget(Image(source="Pages\\resources\\noimageBlack.png", pos_hint={"center_x": .5, "center_y": .5}))
+                level_2.add_widget(float_test)
+            float_test.add_widget(DBButton("FAV", data[each], pos_hint={"center_x": .1, "center_y": .9}))
+            float_test.add_widget(DBButton('WL', data[each], pos_hint={"center_x": .9, "center_y": .9}))
             level_3 = GridLayout(rows=4)
             # level_3.add_widget(WrappedLabel(text=data[each][0], color=[125,125,125,1]))
             level_3.add_widget(WrappedLabel(text=data[each][0]))

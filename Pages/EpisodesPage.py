@@ -1,18 +1,12 @@
 from Scrapers.tmbd import TmbdScraper
-from Pages.ExtendedFunctions import WrappedLabel, CustomButton
+from Pages.ExtendedFunctions import SubmitButton, WrappedLabel, CustomButton
 
-from kivy.app import App
 from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
-from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.textinput import TextInput
-# from kivymd.uix.button import MDIconButton
-from kivy.uix.button import Button
-from kivy.uix.screenmanager import Screen, ScreenManager, NoTransition
+from kivy.uix.screenmanager import Screen
 from kivy.core.window import Window
 from kivy.uix.image import AsyncImage
-from kivy.clock import mainthread
 from kivy.uix.scrollview import ScrollView
 
 class EpisodePage(Screen):
@@ -45,19 +39,10 @@ class EpisodePage(Screen):
                 level_3.add_widget(WrappedLabel(text=data[each][1]))
                 level_3.add_widget(WrappedLabel(text=data[each][2]))
                 level_3.add_widget(WrappedLabel(text=data[each][4]))
-                level_3.add_widget(CustomButton(data[each][-1], text='Select', on_press=self.select_episode))
+                level_3.add_widget(SubmitButton(data[each][-1], text='Select'))
                 level_2.add_widget(level_3)
                 parent.add_widget(level_2)
             scroll.add_widget(parent)
             self.clear_widgets()
             self.add_widget(scroll)           
         
-        def select_episode(self, button: CustomButton):
-            # /tv/14658-survivor/season/42/episode/1
-            info = button.link.split("/")
-            ep_num = info[-1]
-            season_num = info[-3]
-            tmdb_num = info[2] # 14658-survivor
-            tmdb_num = tmdb_num.split("-")[0]
-            # URL: https://fsapi.xyz/tv-tmdb/{TMDb_ID}-{SEASON_NUMBER}-{EPISODE_NUMBER}
-            print(f"https://fsapi.xyz/tv-tmdb/{tmdb_num}-{season_num}-{ep_num}")

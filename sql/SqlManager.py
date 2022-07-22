@@ -82,6 +82,8 @@ class SqlContextManager():
             bool: True on success
         """
         assert len(data) == 5, "Not enough data to populate table. List must have 5 indexes"
+        if len(data[2]) > 10:  # Don't want to save a massive show description in the DB, so we'll just empty the string
+            data[2] = ""
         # print(data)
         # Add entry to DB
         try:

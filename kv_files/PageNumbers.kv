@@ -1,0 +1,28 @@
+#:kivy 1.0
+
+<PageNumbers>:
+    first_b: first_b
+    GridLayout:
+        cols: 6
+        Label:
+            text: ""
+        Button:
+            id: first_b
+            size_hint_x: None
+            text: "1"
+            color: 0,0,255,.5
+            on_release: root.update()
+        Button:
+            size_hint_x: None
+            text: "2"
+            color: 0,255,0,.5
+        Button:
+            size_hint_x: None
+            text: "3"
+            color: 255,0,0,1
+        Button:
+            size_hint_x: None
+            text: "4"
+            color: 0,0,255,1
+        Label:
+            text: ""

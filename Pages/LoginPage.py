@@ -9,6 +9,7 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 from kivy.uix.screenmanager import Screen
 from kivy.uix.image import AsyncImage
+from kivy.uix.dropdown import DropDown
 
 from kivy.clock import mainthread
 import threading
@@ -36,18 +37,44 @@ class LoginPage(Screen):
         thread.start()
         self.add_widget(parent)
 
+    def work_in_progress(self, button: Button):
+        parent = FloatLayout()
+        dropdown = DropDown(size_hint=[.1,1], pos=(0,-30))
+        options = ["Home", "Favorites", "Watch Later", "History"]
+        for each in options:
+            # When adding widgets, we need to specify the height manually
+            # (disabling the size_hint_y) so the dropdown can calculate
+            # the area it needs.
+
+            btn = Button(text='%s' % each, size_hint_y=None, height=44, on_press=self.switch)
+
+            # for each button, attach a callback that will call the select() method
+            # on the dropdown. We'll pass the text of the button as the data of the
+            # selection.
+            btn.bind(on_release=lambda btn: dropdown.select(btn.text))
+            # then add the button inside the dropdown
+            dropdown.add_widget(btn)
+
+        parent.add_widget(dropdown)
+        self.add_widget(parent)
+
     def build_search_layout(self):
-        search_layout = GridLayout(cols=4,size_hint_y=None, height=30)
+        search_layout = GridLayout(cols=5,size_hint_y=None, height=30)
+        dropdown = Button(text="...", size_hint_x=None, width=20, on_press=self.work_in_progress)
         back_button = Button(text="<-", size_hint_x=None, width=20, disabled=True)
         self.next_button = Button(text="->", size_hint_x=None, width=20, disabled=True, on_press=self.change)
         search_bar = TextInput(multiline=False, _hint_text="Enter a search", height=30,  size_hint_y=None, on_text_validate=self.submit_query)
         serach_button = Button(text="Search", size_hint=[None, None], height=30, on_press=self.change)
+        search_layout.add_widget(dropdown)
         search_layout.add_widget(back_button)
         search_layout.add_widget(self.next_button)
         search_layout.add_widget(search_bar)
         search_layout.add_widget(serach_button)
         return search_layout
     
+    def switch(self, button):
+        self.manager.current = 'dblist'
+
     def submit_query(self, input: TextInput):
         if not input.text:
             print("Nothing submitted")
@@ -69,6 +96,7 @@ class LoginPage(Screen):
             if thumby == "":
                 level_2.add_widget(float_test.add_widget(WrappedLabel(text="No Image", pos_hint={"center_x": .5, "center_y": .5})))
             else:
+                thumby = 'https://www.themoviedb.org' + thumby
                 float_test.add_widget(AsyncImage(source=thumby, pos_hint={"center_x": .5, "center_y": .5}))
                 level_2.add_widget(float_test)
 
@@ -78,7 +106,7 @@ class LoginPage(Screen):
             level_3.add_widget(WrappedLabel(text=data[each][0]))
             level_3.add_widget(WrappedLabel(text=data[each][1]))
             level_3.add_widget(WrappedLabel(text=data[each][2]))
-            level_3.add_widget(SubmitButton(data[each][-1], text='Select', background_normal=""))
+            level_3.add_widget(SubmitButton(data[each][-1], text='Select', background_normal="Pages\\resources\\transparent.png"))
             level_2.add_widget(level_3)
             parent.add_widget(level_2)
         return parent  

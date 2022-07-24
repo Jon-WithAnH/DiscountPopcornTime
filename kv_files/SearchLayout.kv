@@ -1,0 +1,60 @@
+#:kivy 1.0
+
+<SearchLayout>:
+    id: spage
+    search_bar: search_bar
+    GridLayout:
+        cols: 6
+        size_hint_y: None
+        height: dp(30)
+        Button:
+            id: "back_button"
+            text: "..."
+            size_hint_x: None
+            width: dp(20)
+            on_release: root.gen_dropdown()
+        Button:
+            id: "back_button"
+            text: "<-"
+            size_hint_x: None
+            width: dp(20)
+            # on_press: root.prev()
+        Button:
+            id: "next_button"
+            # text: "->"
+            background_normal: "./Pages/resources/forwardArrow.png"
+            size_hint_x: None
+            width: dp(20)
+        TextInput: 
+            id: search_bar
+            hint_text: "Enter a search"
+            multiline: False
+            size_hint_y: None
+            height: 30
+            on_text_validate: root.preform_search()
+        Button:
+            id: "search_button"
+            text: "Search"
+            size_hint_x: None
+            on_press: root.preform_search()
+        Button:
+            # Button that prints the current Screen. Used to aid in debugging
+            text: "Debug"
+            on_press: root.debug()
+    # FloatLayout:
+    #     id: float
+    #     # canvas: None
+    #     # visable: False
+    #     # selected: False
+    #     pos_hint: {'center_x': -0.5,'center_y': -0.5}
+    #     DropDown:
+    #         size_hint: .1, 1
+    #         pos: 0,-30
+    #         Button:
+    #             text: "Home"
+    #             width: 44
+    #         Button:
+    #             text: "Favorites"
+    #             width: 44
+        
+            

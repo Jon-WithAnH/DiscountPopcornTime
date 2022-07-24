@@ -1,17 +1,14 @@
 from Scrapers.tmbd import TmbdScraper
 from Pages.ExtendedFunctions import WrappedLabel, CustomButton, DBButton
 
-from kivy.app import App
 from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.textinput import TextInput
-from kivy.uix.image import Image
+from kivy.uix.image import Image, AsyncImage
 from kivy.uix.button import Button
-from kivy.uix.screenmanager import Screen, ScreenManager, NoTransition
-from kivy.core.window import Window
-from kivy.uix.image import AsyncImage
+from kivy.uix.screenmanager import Screen
 from kivy.clock import mainthread
 
 # from Scrapers.tmbd import TmbdScraper
@@ -60,18 +57,19 @@ class SearchPage(Screen):
         test1.next_button.disabled = False
         self.manager.current = 'login'
 
-    def preform_search(self, query: str):
+    def preform_search(self, query: TextInput):
         """Method is activated when user sends a search request. It is called within LoginPage.submitQuery(). Page should be inaccessable until this method is actiaved.
 
         Args:
-            query (str): Desired search term for TMDB
+            query (TextInput): TextInput field that contains the search term for TMDB
         """
         tmp = self.tmbd_parser.preform_search_query(query.text)
         if tmp is None:
             print("movie")
             return
         print(f"Search completed for {query.text}: {len(tmp)} results")
-        self.buildFromSearchPage(tmp)
+        self.buildFromSearchPage(tmp) # TODO: uncomment
+        return tmp
         # self.setData(tmp)
 
     @mainthread

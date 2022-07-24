@@ -2,7 +2,6 @@
 File will handle interactions for https://www.themoviedb.org/
 '''
 
-from platform import release
 import requests
 from bs4 import BeautifulSoup
 import re
@@ -47,6 +46,12 @@ class TmbdScraper:
         self.popular_page = {}
 
     def get_popular_movies(self) -> dict:
+        """_summary_
+
+        Returns:
+            dict: Information about each title on the popular page.
+            Each key has the value in the order: [show_title, release_date, show_rating, thumbnail, link]
+        """
         url = "https://www.themoviedb.org/movie"
         return self.__get_popular_page_info(url)
 
@@ -77,10 +82,12 @@ class TmbdScraper:
             info.append(re.search(r'(?<=percent=")([^"]+)', each)[0]) # show rating
             thumby = re.search(r'(?<=src=")([^"]+)', each)
             if thumby: 
-                info.append('https://www.themoviedb.org' + thumby[0]) # img thumbnail
+                # info.append('https://www.themoviedb.org' + thumby[0]) # img thumbnail
+                info.append(thumby[0]) 
             else:
                 info.append("")
-            info.append('https://www.themoviedb.org' + re.search(r'(?<=href=")(/[^"]+)', each)[0]) # link to page
+            # info.append('https://www.themoviedb.org' + re.search(r'(?<=href=")(/[^"]+)', each)[0]) # link to page
+            info.append(re.search(r'(?<=href=")(/[^"]+)', each)[0]) # link to page
             self.popular_page[len(self.popular_page)] = info
         return self.popular_page
 
@@ -156,6 +163,7 @@ class TmbdScraper:
             info.append(re.search(r'(?<=href=")([^"]+)', each)[0]) # show link
             seasons[len(seasons)] = info
         
+
         self.seasons = seasons
         return self.seasons
 

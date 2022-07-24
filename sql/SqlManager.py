@@ -94,7 +94,7 @@ class SqlContextManager():
             return False
 
     def delete(self, table_name: str, data: list):
-        print(f"Deleteing from DB: {data}")
+        print(f"Deleteing from DB '{table_name}': {data}")
         self.mycursor.execute("DELETE FROM %s WHERE link='%s'" % (table_name, data[-1]))
         self.mydb.commit()
 
@@ -116,7 +116,7 @@ class SqlContextManager():
         return False
 
 
-    def show_tables(self, table_name: str) -> list:
+    def get_all(self, table_name: str) -> list:
         """_summary_
 
         Args:

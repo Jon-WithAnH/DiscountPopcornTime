@@ -2,11 +2,19 @@ from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.image import AsyncImage
+import webbrowser
 
 from sql.SqlManager import SqlContextManager
 
+ENABLE_BROWSER_USE = False
+
+def setEBU():
+        ENABLE_BROWSER_USE = True
+
 class SubmitButton(Button):
     """Button used when the user is ready to open a link to whatever they want to watch"""
+
+
     def __init__(self, data: str, **kwargs):
         """Create a button to use that will assemble the link to fsapi
 
@@ -36,12 +44,19 @@ class SubmitButton(Button):
         tmdb_num = info[2] # 14658-survivor
         tmdb_num = tmdb_num.split("-")[0]
         # URL: https://fsapi.xyz/tv-tmdb/{TMDb_ID}-{SEASON_NUMBER}-{EPISODE_NUMBER}
-        print(f"https://fsapi.xyz/tv-tmdb/{tmdb_num}-{season_num}-{ep_num}")
+        if ENABLE_BROWSER_USE:
+            webbrowser.open(f"https://fsapi.xyz/tv-tmdb/{tmdb_num}-{season_num}-{ep_num}")
+        else: 
+            print(f"https://fsapi.xyz/tv-tmdb/{tmdb_num}-{season_num}-{ep_num}")
     
     def __generate_movie_link(self):
-        self.data = self.data.split("/")[-1]
+        tmp_data = self.data.split("/")[-1]
         # https://fsapi.xyz/tmdb-movie/{TMDb_ID}
-        print(f"https://fsapi.xyz/tmdb-movie/{self.data}")
+        print(ENABLE_BROWSER_USE)
+        if ENABLE_BROWSER_USE:
+            webbrowser.open(f"https://fsapi.xyz/tmdb-movie/{tmp_data}")
+        else: 
+            print(f"https://fsapi.xyz/tmdb-movie/{tmp_data}")
         
 
 
@@ -94,11 +109,16 @@ class DBButton(Button):
     def on_press(self):
         # print(f"Data to be saved: {self.data}")
         with SqlContextManager() as manager:
-            if manager.search_table(self.DB, self.data):
-                manager.delete(self.DB, self.data)
+            tmp = self.data
+            for i in range(len(tmp)):
+                # Loop to correct syntax error from sqlconnector. "'" is an illegal character.
+                # Eg., "Groot's First Steps"
+                tmp[i] = tmp[i].replace("'", "")
+            if manager.search_table(self.DB, tmp):
+                manager.delete(self.DB, tmp)
                 self.background_normal = 'Pages\\resources\\emptybookmark.png'
                 return
-            manager.commit(self.DB, self.data)
+            manager.commit(self.DB, tmp)
             self.background_normal = 'Pages\\resources\\newbookmark.png'
             
 

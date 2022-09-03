@@ -1,0 +1,16 @@
+#:kivy 1.0
+
+<SeasonsPage>:
+    GridLayout:
+        rows: 3
+        SearchLayout:
+            manager: root.manager
+            size_hint_y: None
+            height: dp(30)  # Have to tell the widget the proper height, even though it's already defined in class
+        ResultsLayout:
+            manager: root.manager
+            id :rlayout
+        PageNumbers:
+            manager: root.manager
+            size_hint_y: None
+            height: dp(30) 

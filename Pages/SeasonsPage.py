@@ -17,7 +17,7 @@ class SeasonsPage(Screen):
         self.tmbd_parser = TmbdScraper()
 
     def get_seasons_info(self, button: CustomButton) -> bool:
-        """Feeds the parser link information contained within the button.
+        """Feeds the link information contained within the button and fills the SeasonsPage with that information.
 
         Args:
             button (CustomButton): CustomButton that holds the link to wherever the user wants to go. Eg., "/movie/19995"
@@ -40,8 +40,10 @@ class SeasonsPage(Screen):
     def build_seasons_page(self, data: dict):
         scroll = ScrollView()
         scroll.scroll_wheel_distance=100
-        test = Window.height / 220
-        tmp = 220*int((len(data)/2+1))/Window.height
+        # FIXME: var is only calcuated once
+        # so whenever the window changes AFTER this method is called, the scale will be incorrect
+        # consider self.texture_size or something similar
+        tmp = 220*int((len(data)/2+1))/Window.height 
         # print(f"recommend size_hint_y: {tmp} - resulted from {220}*{int(len(data)/2+1)}/{Window.height}")
         parent = GridLayout(cols=2, rows=int(len(data)/2)+1, size_hint_y = tmp)
 

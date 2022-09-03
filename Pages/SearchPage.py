@@ -68,7 +68,7 @@ class SearchPage(Screen):
             print("movie")
             return
         print(f"Search completed for {query.text}: {len(tmp)} results")
-        self.buildFromSearchPage(tmp) # TODO: uncomment
+        self.buildFromSearchPage(tmp)
         return tmp
         # self.setData(tmp)
 

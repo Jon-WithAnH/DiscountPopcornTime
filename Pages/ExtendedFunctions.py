@@ -8,9 +8,6 @@ from sql.SqlManager import SqlContextManager
 
 ENABLE_BROWSER_USE = False
 
-def setEBU():
-        ENABLE_BROWSER_USE = True
-
 class SubmitButton(Button):
     """Button used when the user is ready to open a link to whatever they want to watch"""
 
@@ -52,7 +49,6 @@ class SubmitButton(Button):
     def __generate_movie_link(self):
         tmp_data = self.data.split("/")[-1]
         # https://fsapi.xyz/tmdb-movie/{TMDb_ID}
-        print(ENABLE_BROWSER_USE)
         if ENABLE_BROWSER_USE:
             webbrowser.open(f"https://fsapi.xyz/tmdb-movie/{tmp_data}")
         else: 

@@ -18,7 +18,7 @@ class SubmitButton(Button):
     def __init__(self, data: str, **kwargs):
         """Create a button to use that will assemble the link to fsapi
 
-        Args:
+        Args: 
             data (str): postfix of tmdb link. IE., /tv/14658-survivor/season/42/episode/1 OR /movie/507086
         """
         super().__init__(**kwargs)

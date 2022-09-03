@@ -138,9 +138,7 @@ class TmbdScraper:
         """
         ## Check ID to make sure it's not a movie
         if not tmdbID.__contains__("tv"):
-            # TODO: This stuff
-            print("Movie/Anime was selected. TODO: Activate movie method")
-            return None
+            raise Exception("in tmdb.py get_season(): Attempted to get info for non-valid link")
         seasons = {}
         # https://www.themoviedb.org/tv/14658-survivor/seasons
         tmdbID = tmdbID.split("/") # ['', 'tv', '14658']

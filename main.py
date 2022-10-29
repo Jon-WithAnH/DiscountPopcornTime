@@ -18,6 +18,8 @@ from kivy.lang import Builder
 
 from os import listdir
 from sys import argv
+from multiprocessing import cpu_count
+
 
 class DiscountPopcornTime(App):
     kv_directory = 'Pages'
@@ -34,7 +36,8 @@ class DiscountPopcornTime(App):
  
  
 if __name__ == "__main__":
-    Loader.num_workers = 20 # Maximize thread usage to load all images as fast as possible
+    # Maximize thread usage to load all images as fast as possible
+    Loader.num_workers = cpu_count if cpu_count else 16
     Window.size = (1550, 920)
     if len(argv) > 1:
         # Enable internet brower usage

@@ -3,12 +3,13 @@ from mysql.connector import errorcode
 
 
 class SqlContextManager():
-    """Context manager for the Sql Database
-    """
+    """Context manager for the Sql Database"""
     SUPPORTED_DB_TABLES_ALIAS = ['FAV', 'WL']
     SUPPORTED_DB_TABLES = ['favorites', 'watch_later']
 
     def __init__(self):
+        """Returns an instance with a connection to the SQL database
+        """
         self.mydb = mysql.connector.connect(
               host="127.0.0.1",
               user="root",
@@ -17,14 +18,11 @@ class SqlContextManager():
             )
 
         self.mycursor = self.mydb.cursor(buffered=True, dictionary=True)
-        # print('init method called')
 
     def __enter__(self):
-        # print('enter method called')
         return self
      
     def __exit__(self, exc_type, exc_value, exc_traceback):
-        # print('exit method called')
         self.mycursor.close()        
         self.mydb.close()
 
@@ -58,18 +56,18 @@ class SqlContextManager():
                 ") ENGINE=InnoDB")
 
         for table_name in TABLES:
-            table_description = TABLES[table_name]
+            create_tables_command = TABLES[table_name]
             try:
                 print("Creating table {}: ".format(table_name), end='')
-                self.mycursor.execute(table_description)
+                self.mycursor.execute(create_tables_command)
             except mysql.connector.Error as err:
                 if err.errno == errorcode.ER_TABLE_EXISTS_ERROR:
                     print("already exists.")
                 else:
                     print(err.msg)
+                    raise
             else:
                 print("OK")
-            # self.mycursor.execute("CREATE TABLE favorites (show_title VARCHAR(255), release_date VARCHAR(10), show_rating VARCHAR(5), thumbnail VARCHAR(255), link VARCHAR(255) UNIQUE)")
 
     def commit(self, table_name: str, data: list) -> bool:
         """Commit the new information into the DB
@@ -79,18 +77,18 @@ class SqlContextManager():
             data (list): list of len(5) the holds the information about the title
 
         Returns:
-            bool: True on success
+            bool: True if data was successfully added to the db. False on if entry already exists.
         """
         assert len(data) == 5, "Not enough data to populate table. List must have 5 indexes"
-        if len(data[2]) > 10:  # Don't want to save a massive show description in the DB, so we'll just empty the string
+        if len(data[2]) > 10:  # Choosing not to save a massive show description in the DB, so we'll just empty the string for now
             data[2] = ""
-        # print(data)
         # Add entry to DB
         try:
             self.mycursor.execute("INSERT INTO %s VALUES ('%s', '%s', '%s', '%s', '%s');" % (table_name, data[0], data[1],data[2],data[3],data[4]))
             self.mydb.commit()
+            return True
         except mysql.connector.errors.IntegrityError as err:
-            print("Entry already exists")
+            # Entry already exists
             return False
 
     def delete(self, table_name: str, data: list):

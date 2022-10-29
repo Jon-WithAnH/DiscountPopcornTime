@@ -60,10 +60,10 @@ class TmbdScraper:
         return self.__get_popular_page_info(url)
 
     def __get_popular_page_info(self, url: str) -> dict:
-        """Internally used
+        """Internally used to get the most popular movies or tv shows from TMDB
 
         Args:
-            url (str): _description_
+            url (str): Link to TMDB's most popular page.
 
         Returns:
             dict: Information about each title on the popular page.
@@ -73,7 +73,7 @@ class TmbdScraper:
             self.popular_page = {}
         page = requests.get(url, headers=self._headers)
         page = BeautifulSoup(page.text, "html.parser")
-        # test = page.find_all("div", {"class": ["image", "content"]})
+
         for each in page.find_all("div", class_="card style_1"):
             each = str(each)
             info = []
@@ -82,11 +82,9 @@ class TmbdScraper:
             info.append(re.search(r'(?<=percent=")([^"]+)', each)[0]) # show rating
             thumby = re.search(r'(?<=src=")([^"]+)', each)
             if thumby: 
-                # info.append('https://www.themoviedb.org' + thumby[0]) # img thumbnail
                 info.append(thumby[0]) 
             else:
                 info.append("")
-            # info.append('https://www.themoviedb.org' + re.search(r'(?<=href=")(/[^"]+)', each)[0]) # link to page
             info.append(re.search(r'(?<=href=")(/[^"]+)', each)[0]) # link to page
             self.popular_page[len(self.popular_page)] = info
         return self.popular_page
@@ -119,10 +117,8 @@ class TmbdScraper:
             info.append("") if thumbnail is None else info.append(thumbnail[0])
             info.append(re.search(r'(?<=href=")([^"]+)', each)[0]) # show link
             tmp[len(tmp)] = info
-            if len(tmp) == 20: # If it can't be found within the first 20 guesses, they should try a better query
+            if len(tmp) == 20: # TODO: Increase result count by allowing more pages in the UI. IN_PROGRESS
                 break
-        # for x in range(len(tmp)):
-            # print(tmp[x][0])
         self.search_query_results = tmp
         return self.search_query_results
 
@@ -144,11 +140,9 @@ class TmbdScraper:
         tmdbID = tmdbID.split("/") # ['', 'tv', '14658']
         page = requests.get(f"https://www.themoviedb.org/tv/{tmdbID[-1]}/seasons", headers=self._headers)
         page = BeautifulSoup(page.text, "html.parser")
-        # print(page)  
         content = page.find_all("div", class_='season') 
-        # print(f"{len(content)} results")
+
         for each in content:
-            # print(each)
             each = str(each)
             info = []
             info.append(re.search(r'(?<=">)([^<|\n]+)', each)[0]) # season name
@@ -180,7 +174,6 @@ class TmbdScraper:
         page = requests.get(f"https://www.themoviedb.org{tmdbID}", headers=self._headers)
         page = BeautifulSoup(page.text, "html.parser")
         content = page.find_all("div", class_='card') 
-        # print(f"{len(content)} episode results for {tmdbID}")  
 
         for each in content:
             each = str(each)
